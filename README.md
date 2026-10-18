@@ -1,3 +1,5 @@
+
+
 # aipr
 
 [![CI](https://github.com/yunaremaia/aipr/actions/workflows/ci.yml/badge.svg)](https://github.com/yunaremaia/aipr/actions/workflows/ci.yml)
