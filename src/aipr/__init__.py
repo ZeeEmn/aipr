@@ -5,4 +5,5 @@ from importlib.metadata import PackageNotFoundError, version as _metadata_versio
 try:
     __version__ = _metadata_version("aipr-py")
 except PackageNotFoundError:  # running from a source checkout, not an install
-    __version__ = "0.0.0.dev0"
+    # Keep in sync with [project].version in pyproject.toml
+    __version__ = "0.2.9"
