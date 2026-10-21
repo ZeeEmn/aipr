@@ -1,6 +1,7 @@
 """Tests for the aipr CLI (no network)."""
 
 import json
+import sys
 
 import pytest
 from aipr.cli import _validate_repo, main, EXIT_USAGE
@@ -220,3 +221,26 @@ def test_ordinary_ai_tools_mention_not_restrictive(monkeypatch, capsys):
     out = json.loads(capsys.readouterr().out)
     assert code == 2
     assert out["verdict"] == "unknown"
+
+
+class TestInitSubcommand:
+    """Tests for the 'init' subcommand reachable from the installed CLI."""
+
+    def test_init_reachable_from_console_script(self, tmp_path, monkeypatch, capsys):
+        monkeypatch.setattr(sys, "argv", ["aipr", "init", "--dir", str(tmp_path)])
+        code = main()
+        assert code == 0
+        assert (tmp_path / "AI_POLICY.md").exists()
+        assert (tmp_path / "AI_TOOL_POLICY.md").exists()
+
+    def test_init_with_explicit_argv(self, tmp_path, capsys):
+        code = main(["init", "--dir", str(tmp_path), "--type", "permissive"])
+        assert code == 0
+        policy = (tmp_path / "AI_POLICY.md").read_text(encoding="utf-8")
+        assert "No disclosure is required" in policy
+
+    def test_init_defaults_to_disclose_policy(self, tmp_path, capsys):
+        code = main(["init", "--dir", str(tmp_path)])
+        assert code == 0
+        policy = (tmp_path / "AI_POLICY.md").read_text(encoding="utf-8")
+        assert "disclosure" in policy.lower()
