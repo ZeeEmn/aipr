@@ -16,20 +16,26 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-def _int_env(name: str, default: int) -> int:
+def _int_env(name: str, default: int, min_value: int | None = None) -> int:
     val = os.environ.get(name)
     if val is None:
         return default
     try:
-        return int(val)
+        parsed = int(val)
     except ValueError:
         logger.warning("%s=%r is not an integer; using %d", name, val, default)
         return default
+    if min_value is not None and parsed < min_value:
+        logger.warning(
+            "%s=%r is below minimum %d; using %d", name, val, min_value, default
+        )
+        return default
+    return parsed
 
 
 # Default TTL: 24 hours (in seconds)
 DEFAULT_CACHE_TTL = _int_env("AIPR_CACHE_TTL", 86400)
-MAX_CACHE_SIZE = _int_env("AIPR_CACHE_SIZE", 1024)
+MAX_CACHE_SIZE = _int_env("AIPR_CACHE_SIZE", 1024, min_value=1)
 
 
 @dataclass
@@ -73,6 +79,8 @@ class TTLCache:
         Evicts oldest entries if cache exceeds maxsize.
         """
         with self._lock:
+            if self._maxsize <= 0:
+                return
             while len(self._cache) >= self._maxsize:
                 oldest_key = min(self._cache, key=lambda k: self._cache[k].ts)
                 del self._cache[oldest_key]
