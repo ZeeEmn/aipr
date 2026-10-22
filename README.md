@@ -110,7 +110,7 @@ aipr init [--dir .] [--type disclose|permissive|human_only] [--org ORG]
 
 Presets:
 - `permissive` — explicitly welcomes AI-assisted contributions (aipr-safe)
-- `disclose_ok` (default) — allowed with `Assisted-by: AI` disclosure trailer
+- `disclose` (default) — allowed with `Assisted-by: AI` disclosure trailer
 - `human_only` — AI must not be the main author (NOT autonomous-safe)
 
 ### Verdicts
